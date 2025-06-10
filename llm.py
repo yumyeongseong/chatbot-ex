@@ -8,30 +8,46 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
 
+## 환경변수 읽어오기 ===================================================================
+load_dotenv()
 
-## [AI message 함수 정의] ##############################
-def get_ai_meassge(user_meassge):
-   
-    ## 환경변수 읽어오기 ###########################################################
-    load_dotenv()
+
+## LLM 함수 정의
+def get_llm(model='gpt-4o'):
+    llm = ChatOpenAI(model=model)
+    return llm
+
+
+## Database 함수 정의 =================================================================
+def get_database():
     PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
-    LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
-
-    ## 임베딩 -> 벡터 스토어(데이터베이스)에서 인덱스 가져오기 #####################
+    
     ## 임베딩 모델 지정
     embedding = OpenAIEmbeddings(model='text-embedding-3-large')
     pc = Pinecone(api_key=PINECONE_API_KEY)
     index_name = 'law'
 
-    ## 저장된 인덱스 가져오기 ######################################################
+    ## 저장된 인덱스 가져오기 ========================================================
     database = PineconeVectorStore.from_existing_index(
         index_name=index_name,
         embedding=embedding,
     )
+    
+    return database
 
-    ## RetrievalQA #################################################################
-    llm = ChatOpenAI(model='gpt-4o')
-    prompt = hub.pull('rlm/rag-prompt')
+
+## retrievalQA 함수 정의 ==============================================================
+def get_retrievalQA():
+    LANGCHAIN_API_KEY = os.getenv('LANGCHAIN_API_KEY')
+
+    ## vector store에서 index 정보
+    database = get_database()
+
+    ## prompt
+    prompt = hub.pull('rlm/rag-prompt', api_key=LANGCHAIN_API_KEY)
+
+    ## LLM 모델 지정
+    llm = get_llm()
 
     def format_docs(docs):
         return '\n\n'.join(doc.page_content for doc in docs)
@@ -45,8 +61,13 @@ def get_ai_meassge(user_meassge):
         | llm
         | StrOutputParser()
     )
+    return qa_chain
 
-    # qa_chain.invoke('전세사기피해자 대상을 알려주세요.')
+
+## [AI message 함수 정의] ==================================
+def get_ai_meassge(user_meassge):
+    qa_chain = get_retrievalQA()
     ai_message = qa_chain.invoke(user_meassge)
+
     return ai_message
 
