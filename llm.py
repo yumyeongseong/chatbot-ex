@@ -44,7 +44,7 @@ def get_retrievalQA():
     database = get_database()
 
     ## prompt
-    prompt = hub.pull('rlm/rag-prompt', api_key=LANGCHAIN_API_KEY)
+    prompt = hub.pull('ando/rag-prompt', api_key=LANGCHAIN_API_KEY)
 
     ## LLM 모델 지정
     llm = get_llm()

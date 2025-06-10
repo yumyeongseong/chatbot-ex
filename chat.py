@@ -2,8 +2,8 @@ import streamlit as st
 from llm import get_ai_meassge
 
 
-st.set_page_config(page_title='전세사기피해 상담 챗봇', page_icon='🤖')
-st.title('🤖전세사기피해 상담 챗봇')
+st.set_page_config(page_title='전세사기피해 상담 챗봇', page_icon='⚖️')
+st.title('⚖️전세사기피해 상담 챗봇')
 
 if 'message_list' not in st.session_state:
     st.session_state.message_list = []
