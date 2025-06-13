@@ -1,11 +1,6 @@
 ## 파일
 .env
-chat-01.py
-test.py
-chat-02.py
-# chat-before.py
-# llm-before.py
-*-before.py
-llm-before2.py
+
 ## 폴더
 __pycache__/
+secret/
